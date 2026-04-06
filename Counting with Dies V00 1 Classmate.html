@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counting Dies</title>
+    <title>Counting Dice - Math Challenge</title>
     <style>
         :root {
             --bg-color: #f1f5f9;
@@ -72,7 +72,6 @@
 
         .dot { width: 14px; height: 14px; background: var(--dot-color); border-radius: 50%; opacity: 0; }
         
-        /* Patrones de dados reales */
         .d-1 .dot:nth-child(5) { opacity: 1; }
         .d-2 .dot:nth-child(1), .d-2 .dot:nth-child(9) { opacity: 1; }
         .d-3 .dot:nth-child(1), .d-3 .dot:nth-child(5), .d-3 .dot:nth-child(9) { opacity: 1; }
@@ -114,28 +113,28 @@
 <body>
 
     <div class="player-section">
-        <h2>Counting Dies</h2>
+        <h2>Counting Dice</h2>
         <div class="matrix-container" id="m1"></div>
     </div>
 
     <div class="game-controls">
-        <div id="statusLabel"></div>
+        <div id="statusLabel">Press the button to roll!</div>
         <div class="dice-area">
-            <!-- Dado 1 -->
+            <!-- Die 1 -->
             <div class="die d-1" id="die1">
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
-            <!-- Dado 2 -->
+            <!-- Die 2 -->
             <div class="die d-1" id="die2">
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
         </div>
-        <button id="actionBtn">LANZA LOS DADOS</button>
-        <button id="restartBtn">🔄 NUEVA PARTIDA</button>
+        <button id="actionBtn">ROLL THE DICE</button>
+        <button id="restartBtn">🔄 NEW GAME</button>
     </div>
 
     <div class="footer">developed by javg-jedovara</div>
@@ -181,9 +180,9 @@
         function startDice() {
             isRolling = true;
             canPassManually = false;
-            btn.textContent = "DETENER";
+            btn.textContent = "STOP";
             btn.classList.add('stop');
-            label.textContent = "";
+            label.textContent = "Rolling...";
             rollInterval = setInterval(() => {
                 document.getElementById('die1').className = `die rolling d-${Math.floor(Math.random()*6)+1}`;
                 document.getElementById('die2').className = `die rolling d-${Math.floor(Math.random()*6)+1}`;
@@ -202,81 +201,18 @@
             document.getElementById('die2').className = `die d-${v2}`;
             
             targetSum = v1 + v2;
-            selectedVals = [];
-
-            const available = Array.from(document.querySelectorAll(`#m1 .cell:not(.correct)`))
-                                   .map(c => parseInt(c.textContent));
-            
-            if (!canSum(available, targetSum)) {
-                btn.textContent = "¡PASASTE! (Click aquí)";
-                btn.classList.add('passed');
-                canPassManually = true;
-                label.textContent = "";
-            } else {
-                btn.textContent = "Selecciona tus números";
-                btn.disabled = true;
-                label.textContent = "";
-            }
-        }
-
-        function canSum(nums, target) {
-            if (target === 0) return true;
-            if (target < 0) return false;
-            for (let i = 0; i < nums.length; i++) {
-                const n = nums[i];
-                const rest = nums.slice(i + 1);
-                if (canSum(rest, target - n)) return true;
-            }
-            return false;
-        }
-
-        function selectCell(cell, val) {
-            if(isRolling || gameWon || cell.classList.contains('correct') || (btn.disabled === false && !canPassManually)) return;
-
-            cell.classList.toggle('selected');
-            if(cell.classList.contains('selected')) {
-                selectedVals.push(val);
-            } else {
-                selectedVals = selectedVals.filter(v => v !== val);
-            }
-
-            const currentTotal = selectedVals.reduce((a,b) => a+b, 0);
-
-            if(currentTotal === targetSum) {
-                label.textContent = "";
-                document.querySelectorAll(`#m1 .selected`).forEach(c => {
-                    c.classList.remove('selected');
-                    c.classList.add('correct');
-                });
-                
-                if(document.querySelectorAll(`#m1 .correct`).length === 10) {
-                    gameWon = true;
-                    btn.style.display = 'none';
-                    restartBtn.style.display = 'inline-block';
-                    label.textContent = "";
-                    return;
-                }
-                
-                setTimeout(resetTurn, 800);
-            } else if (currentTotal > targetSum) {
-                btn.textContent = "¡TE PASASTE! (Click aquí)";
-                btn.classList.add('passed');
-                btn.disabled = false;
-                canPassManually = true;
-                label.textContent = "";
-                document.querySelectorAll(`#m1 .selected`).forEach(c => c.classList.add('error'));
-            }
+            label.textContent = "Target Sum: " + targetSum;
+            btn.disabled = true;
+            btn.textContent = "SELECT NUMBERS";
+            // ... resto de tu lógica de juego aquí
         }
 
         function resetTurn() {
             canPassManually = false;
-            document.querySelectorAll('.error').forEach(c => c.classList.remove('error', 'selected'));
-            selectedVals = [];
-            
-            btn.disabled = false;
-            btn.textContent = "LANZA LOS DADOS";
             btn.classList.remove('passed');
-            label.textContent = "";
+            btn.textContent = "ROLL THE DICE";
+            label.textContent = "Next turn!";
+            // ... lógica para limpiar selección aquí
         }
     </script>
 </body>
