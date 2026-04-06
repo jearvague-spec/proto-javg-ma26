@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en"> <!-- ===== en for English / es for Spanish ===== -->
+
+
+
+
+<head>
+    <meta charset="UTF-8"> <!-- ===== in case of word with accent ===== -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria</title> <!-- ================================================== Create title on the Web -->
+	<link rel="icon" type="image/jpg" href="rocket.jpg"><!-- add an icon to the Web Page -->
+
+
+<style>
+
+
+
+<!-- /* Create style for body */ -->
+body
+{
+ background: rgb(63,94,251);
+ background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,7,107,1) 100%);
+ color: white;
+ font-family: sans-serif;
+}
+
+<!-- /* Create style for main function */ -->
+main
+{
+ width: 730px;
+ margin: 100px auto 50px;
+ display: flex;
+ align-items: center;
+}
+
+<!-- /* Create style for section1 */ -->
+.section1
+{
+ background-color: rgba(255,255,255,0.2);
+ padding: 0 10px 10px 10px;
+ border-radius: 8px;
+}
+
+<!-- /* Create style for section1 title */ -->
+h1
+{
+ text-align: center;
+}
+
+<!-- /* Create style for button */ -->
+button
+{
+ height: 100px;
+ width: 100px;
+ font-size: 40px;
+ color: black;
+ font-weight: bold;
+}
+
+<!-- /* Create mouse image on the button */ -->
+button:hover
+{
+ cursor: pointer;
+}
+
+<!-- /* Create style for section2 */ -->
+.section2
+{
+ background-color: rgba(255,255,255,0.2);
+ border-top-right-radius: 8px;
+ border-bottom-right-radius: 8px;
+ width: 250px;
+ height: 400px;
+ padding: 0 20px;
+}
+
+<!-- /* Create style section2 titles */ -->
+.estadisticas
+{
+ border: 1px solid white;
+ height: 105px;
+ border-radius: 8px;
+ padding: 8px 20px;
+ box-sizing: border-box;
+}
+
+<!-- /* Create style for footer */ -->
+footer
+{
+ text-align: center;
+}
+
+<!-- /* Create style link into footer */ -->
+a
+{
+ text-decoration: none;	
+}
+
+</style>
+
+
+</head> <!-- End head -->
+
+
+<body> <!-- =========================================================================== Create body -->
+
+
+ <main> <!-- ========================================================================== It would be created into 2 sections -->
+
+  <section class="section1"> <!-- ===================================================== Create section1 -->
+  <h1>Juego de Memoria</h1> <!-- ====================================================== Create title for section1 -->
+  <table> <!-- ======================================================================== Create table 4rowsx4columns / matrix-4rowsx4columns -->
+   <tr> <!-- ========================================================================== Create row1 and 4columns -->
+    <td><button id="0"  onclick="destapar(0)"></button></td> <!-- ===================== Create button id= 0 / onclick=function destapar(0) -->
+    <td><button id="1"  onclick="destapar(1)"></button></td> <!-- ===================== Create button id= 1 / onclick=function destapar(1) -->
+    <td><button id="2"  onclick="destapar(2)"></button></td> <!-- ===================== Create button id= 2 / onclick=function destapar(2) -->
+    <td><button id="3"  onclick="destapar(3)"></button></td> <!-- ===================== Create button id= 3 / onclick=function destapar(3) -->
+   </tr> <!-- End row1 and 4columns -->
+   <tr> <!-- ========================================================================== Create row2 and 4columns -->
+    <td><button id="4"  onclick="destapar(4)"></button></td> <!-- ===================== Create button id= 4 / onclick=function destapar(4) -->
+    <td><button id="5"  onclick="destapar(5)"></button></td> <!-- ===================== Create button id= 5 / onclick=function destapar(5) -->
+    <td><button id="6"  onclick="destapar(6)"></button></td> <!-- ===================== Create button id= 6 / onclick=function destapar(6) -->
+    <td><button id="7"  onclick="destapar(7)"></button></td> <!-- ===================== Create button id= 7 / onclick=function destapar(7) -->
+   </tr> <!-- End row2 and 4columns -->
+   <tr> <!-- ========================================================================== Create row3 and 4columns -->
+    <td><button id="8"  onclick="destapar(8)"></button></td> <!-- ===================== Create button id= 8 / onclick=function destapar(8) -->
+    <td><button id="9"  onclick="destapar(9)"></button></td> <!-- ===================== Create button id= 9 / onclick=function destapar(9) -->
+    <td><button id="10" onclick="destapar(10)"></button></td> <!-- ==================== Create button id=10 / onclick=function destapar(10) -->
+    <td><button id="11" onclick="destapar(11)"></button></td> <!-- ==================== Create button id=11 / onclick=function destapar(11) -->
+   </tr> <!-- End row3 and 4columns -->
+   <tr> <!-- ========================================================================== Create row4 and 4columns -->
+    <td><button id="12" onclick="destapar(12)"></button></td> <!-- ==================== Create button id=12 / onclick=function destapar(12) -->
+    <td><button id="13" onclick="destapar(13)"></button></td> <!-- ==================== Create button id=13 / onclick=function destapar(13) -->
+    <td><button id="14" onclick="destapar(14)"></button></td> <!-- ==================== Create button id=14 / onclick=function destapar(14) -->
+    <td><button id="15" onclick="destapar(15)"></button></td> <!-- ==================== Create button id=15 / onclick=function destapar(15) -->
+   </tr> <!-- End row4 and 4columns -->
+  </table> <!-- End table 4rowsx4columns / matrix-4rowsx4columns -->
+  </section> <!-- section1 -->
+
+  <section class="section2"> <!-- ===================================================== Create section2 -->
+   <h2 id="aciertos" class="estadisticas">Aciertos: 0</h2> <!-- ======================= Create title for section2 -->
+  </section> <!-- End section2 -->
+
+ </main> <!-- end tag - main -->
+
+
+ <footer> <!-- ======================================================================== Create footer -->
+  <p>Juego programado por <a href="enlace">JAVA</a></p> <!-- ========================== Create paragraph with link -->
+ </footer> <!-- End footer -->
+ 
+
+ <!-- ===== JavaScript =============================================================================== -->
+ <script>
+ let tarjetasDestapadas = 0;              <!-- //cuando es 1 destapa, cuando es 2 destapa / porque -->
+let tarjeta1 = null;
+let tarjeta2 = null;
+let primerResultado = null;
+let segundoResultado = null;
+ <!-- /////
+let aciertos = 0;
+
+ <!-- //Apuntando a documento HTML -->
+let mostrarAciertos = document.getElementById(`aciertos`);
+
+ <!-- //Generacion de numeros aleatorios -->
+let numeros = [1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8];        //16 numeros, 8 pares, 8 aciertos -->
+numeros = numeros.sort(()=>{return Math.random()-0.5}); //rota los numeros de forma aleatoria -->
+console.log(numeros);                                   //ubica los numeros de forma aleatoria en la consola i asigna id de consola consecutivo -->
+                                                         
+
+
+
+ <!-- //Funciones -->
+ <!-- ////////////////////////////////////////////////// -->
+
+ <!-- //Funcion main -->
+ <!-- ////////////////////////////////////////////////// -->
+function destapar(id)
+{
+
+ tarjetasDestapadas++;             <!-- //tarjetasDestapadas se incrementa de 1 en 1, inicialmente de 0 a 1, y luego de 1 hasta 2 para abrir el par -->
+ console.log(tarjetasDestapadas);  <!-- //asigna referencia 1 para primera tarjeta o 2 para segunda tarjeta, en la ubicacion de consola donde haga clic el usuario -->
+ if(tarjetasDestapadas == 1)
+   { <!-- //if1
+     <!-- //Mostrar primer numero
+    tarjeta1 = document.getElementById(id);  <!-- //variable tarjeta1 almacena id de la ubicacion html donde el usuario hizo clic por primera vez -->
+    primerResultado = numeros[id];           <!-- //variable primerResultado almacena el valor de la variable numero de la ubicacion html donde el usuario hizo clic por primera -->
+    tarjeta1.innerHTML = primerResultado;    <!-- //muestra a travez de variable tarjeta1 el valor contenido en variable primerResultado -->
+  
+     <!-- //Deshabilitar primer boton -->
+    tarjeta1.disabled = true; <!-- //deshabilita tarjeta1 -->
+   } <!-- //end if1
+    else
+     { <!-- //else1
+	  if(tarjetasDestapadas == 2)
+        { <!-- //if2
+          <!-- //Mostrar segundo numero
+         tarjeta2 = document.getElementById(id);   <!-- //variable tarjeta2 almacena id de la ubicacion html donde el usuario hizo clic por segunda vez -->
+         segundoResultado = numeros[id];           <!-- //variable primerResultado almacena el valor de la variable numero de la ubicacion html donde el usuario hizo clic por primera -->
+         tarjeta2.innerHTML = segundoResultado;    <!-- //muestra a travez de variable tarjeta1 el valor contenido en variable primerResultado -->
+     
+          <!-- //Deshabilitar segundo boton -->
+         tarjeta2.disabled = true; <!-- //deshabilita tarjeta1 -->
+     
+    
+         if(primerResultado == segundoResultado)
+           { <!-- //if3 -->
+             <!-- //Encerar contador tarjetasDestapadas -->
+            tarjetasDestapadas = 0;
+     
+             <!-- //Aumentar aciertos -->
+            aciertos++;
+            mostrarAciertos.innerHTML = `Aciertos: ${aciertos}`;
+     
+            if(aciertos == 8) <!-- ////////////////////////////////////////cuando se logran los 8 aciertos -->
+	          { <!-- //if4
+               mostrarAciertos.innerHTML = `Aciertos: ${aciertos} LISTO`;
+              } <!-- //end if4 -->
+     
+	       } <!-- //end if3 -->
+		    else
+             { <!-- //else2 -->
+	           <!-- //Mostrar momentaneamente valores y volver a tapar -->
+              setTimeout(()=>{
+	                          tarjeta1.innerHTML = ` `; 
+	 		                  tarjeta2.innerHTML = ` `; 
+                              tarjeta1.disabled = false;
+                              tarjeta2.disabled = false;
+                              tarjetasDestapadas = 0;
+	                          },800); <!-- //800milisegundos, recomendacion de mejor tiempo -->
+    	     
+             } <!-- //end else2 -->
+        } <!-- //end if2 -->
+     } <!-- //end else1 -->
+
+} <!-- //end function main -->
+
+ </script>
+ 
+
+</body> <!-- End body -->
+</html> <!-- End html -->

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juego Burbujas: Velocidad Media y Ciclos Largos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            overflow: hidden;
+            background: linear-gradient(180deg, #006994 0%, #003366 100%);
+            font-family: 'Arial', sans-serif;
+            position: relative;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        /* UI Elements */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        /* LETRERO DE INSTRUCCIONES */
+        #message-display {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #003366;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 28px;
+            font-weight: 900;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 150;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(255,255,255,0.6);
+            border: 4px solid #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
+        #message-display.visible {
+            opacity: 1;
+        }
+
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 200;
+            display: none;
+        }
+
+        #game-over h1 { font-size: 40px; margin-bottom: 20px; color: #FF8E53; }
+        #game-over p { font-size: 20px; margin-bottom: 30px; }
+        
+        #game-over button {
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            background: #FF6B6B;
+            border: none;
+            color: white;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Bubbles */
+        .bubble {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.3));
+            border: 2px solid rgba(255,255,255,0.8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #003366;
+            font-weight: bold;
+            font-size: 22px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            will-change: bottom;
+            z-index: 20;
+        }
+
+        .bubble:active {
+            transform: scale(0.95);
+        }
+
+        .bubble.error {
+            background: radial-gradient(circle at 30% 30%, #ff4d4d, #990000);
+            color: white;
+            border-color: #ff0000;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .bubble.eaten {
+            transform: scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ALGAS */
+        .seaweed-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            pointer-events: none;
+            z-index: 5;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            overflow: hidden;
+            padding: 0 20px;
+        }
+
+        .seaweed {
+            position: relative;
+            bottom: 0;
+            width: 15px;
+            background: linear-gradient(to top, #004d26, #008040);
+            border-radius: 50% 50% 0 0;
+            transform-origin: bottom center;
+            opacity: 0.9;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .seaweed:nth-child(odd) { height: 70px; animation: sway 3s ease-in-out infinite alternate; }
+        .seaweed:nth-child(even) { height: 90px; animation: sway 4s ease-in-out infinite alternate-reverse; background: linear-gradient(to top, #00331a, #006633); }
+        .seaweed:nth-child(3n) { height: 50px; animation: sway 2.5s ease-in-out infinite alternate; }
+        .seaweed:nth-child(4n) { height: 80px; animation: sway 3.5s ease-in-out infinite alternate-reverse; }
+        .seaweed:nth-child(5n) { height: 60px; animation: sway 2.8s ease-in-out infinite alternate; }
+
+        @keyframes sway {
+            0% { transform: rotate(-8deg); }
+            100% { transform: rotate(8deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="ui-layer">
+        <div>Puntos: <span id="score">0</span></div>
+        <div>Tiempo: <span id="timer">120</span>s</div>
+    </div>
+
+    <div id="message-display"></div>
+
+    <div id="game-over">
+        <h1>¡Tiempo Terminado!</h1>
+        <p>Puntuación Final: <span id="final-score">0</span></p>
+        <button onclick="location.reload()">Jugar de Nuevo</button>
+    </div>
+
+    <div class="seaweed-container" id="seaweed-container"></div>
+</div>
+
+<script>
+    // Configuración Actualizada
+    const GAME_DURATION = 120; 
+    const MAX_CYCLES = 5; 
+    const WAIT_TIME = 20000; // CAMBIO: 20 segundos de espera
+    const MSG_TIME = 2000;   // 2 segundos de mensaje
+    
+    let score = 0;
+    let timeLeft = GAME_DURATION;
+    let isGameActive = true;
+    let currentRule = 'odd'; 
+    let cycleStep = 0; 
+    
+    // Sistema de Carriles
+    let lanes = []; 
+    let laneCount = 0;
+    const bubbleSize = 60;
+    const lanePadding = 10; 
+
+    // Elementos DOM
+    const container = document.getElementById('game-container');
+    const seaweedContainer = document.getElementById('seaweed-container');
+    const scoreEl = document.getElementById('score');
+    const timerEl = document.getElementById('timer');
+    const msgEl = document.getElementById('message-display');
+    const gameOverScreen = document.getElementById('game-over');
+    const finalScoreEl = document.getElementById('final-score');
+
+    // 1. Inicializar Carriles y Algas
+    function initGame() {
+        createSeaweed();
+        calculateLanes();
+        window.addEventListener('resize', calculateLanes);
+    }
+
+    function calculateLanes() {
+        const width = container.offsetWidth;
+        laneCount = Math.floor(width / (bubbleSize + lanePadding * 2));
+        // Asegurar al menos 1 carril
+        if (laneCount < 1) laneCount = 1;
+        lanes = new Array(laneCount).fill(false);
+    }
+
+    function createSeaweed() {
+        const count = Math.floor(window.innerWidth / 30); 
+        for (let i = 0; i < count; i++) {
+            const weed = document.createElement('div');
+            weed.classList.add('seaweed');
+            weed.style.margin = `0 ${Math.random() * 10}px`;
+            seaweedContainer.appendChild(weed);
+        }
+    }
+
+    // 2. Lógica de Ciclos de Mensajes (20s espera)
+    function runCycleLogic() {
+        if (!isGameActive) return;
+
+        const nextStep = () => {
+            if (!isGameActive) return;
+
+            if (cycleStep >= MAX_CYCLES * 4) {
+                return; 
+            }
+
+            const stepType = cycleStep % 4;
+
+            if (stepType === 0) {
+                showMessage("ODD NUMBERS", MSG_TIME);
+                currentRule = 'odd';
+                cycleStep++;
+                setTimeout(nextStep, MSG_TIME);
+            } else if (stepType === 1) {
+                // Esperar 20s
+                cycleStep++;
+                setTimeout(nextStep, WAIT_TIME);
+            } else if (stepType === 2) {
+                showMessage("EVEN NUMBERS", MSG_TIME);
+                currentRule = 'even';
+                cycleStep++;
+                setTimeout(nextStep, MSG_TIME);
+            } else if (stepType === 3) {
+                // Esperar 20s
+                cycleStep++;
+                setTimeout(nextStep, WAIT_TIME);
+            }
+        };
+
+        nextStep();
+    }
+
+    function showMessage(text, duration) {
+        msgEl.textContent = text;
+        msgEl.classList.add('visible');
+        setTimeout(() => {
+            if(isGameActive) msgEl.classList.remove('visible');
+        }, duration);
+    }
+
+    // 3. Generación de Burbujas por Carriles
+    function createBubble() {
+        if (!isGameActive) return;
+
+        let freeLaneIndex = -1;
+        
+        for (let i = 0; i < laneCount; i++) {
+            if (!lanes[i]) {
+                freeLaneIndex = i;
+                break;
+            }
+        }
+
+        if (freeLaneIndex === -1) return;
+
+        lanes[freeLaneIndex] = true;
+
+        const bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+        
+        const number = Math.floor(Math.random() * 100) + 1;
+        bubble.textContent = number;
+
+        const containerWidth = container.offsetWidth;
+        const totalLaneWidth = containerWidth / laneCount;
+        const centerX = (freeLaneIndex * totalLaneWidth) + (totalLaneWidth / 2) - (bubbleSize / 2);
+
+        bubble.style.left = centerX + 'px';
+        bubble.style.bottom = '-70px';
+
+        container.appendChild(bubble);
+
+        // CAMBIO: Velocidad un poco más rápida
+        // Antes: 0.7 - 1.5
+        // Ahora: 1.5 - 2.5 (Más fluido pero aún controlable)
+        const speed = Math.random() * 1.0 + 1.5; 
+        
+        let pos = -70;
+        const containerHeight = container.offsetHeight;
+
+        const animateBubble = () => {
+            if (!isGameActive || bubble.classList.contains('eaten')) {
+                if(bubble.parentNode) bubble.remove();
+                lanes[freeLaneIndex] = false;
+                return;
+            }
+
+            pos += speed;
+            bubble.style.bottom = pos + 'px';
+
+            if (pos > containerHeight) {
+                bubble.remove();
+                lanes[freeLaneIndex] = false;
+                return;
+            }
+
+            requestAnimationFrame(animateBubble);
+        };
+        requestAnimationFrame(animateBubble);
+
+        const handleInteraction = (e) => {
+            e.preventDefault(); 
+            if (!isGameActive || bubble.classList.contains('eaten')) return;
+            handleEat(bubble, number);
+        };
+
+        bubble.addEventListener('mousedown', handleInteraction);
+        bubble.addEventListener('touchstart', handleInteraction, { passive: false });
+    }
+
+    // 4. Lógica de comer
+    function handleEat(bubble, number) {
+        const isOdd = number % 2 !== 0;
+        const isEven = number % 2 === 0;
+        
+        let correct = false;
+        if (currentRule === 'odd' && isOdd) correct = true;
+        if (currentRule === 'even' && isEven) correct = true;
+
+        if (correct) {
+            bubble.classList.add('eaten');
+            score += 10;
+            scoreEl.textContent = score;
+        } else {
+            bubble.classList.add('error');
+        }
+    }
+
+    // 5. Loop del juego
+    function startGame() {
+        initGame();
+        runCycleLogic();
+
+        const spawnLoop = () => {
+            if(!isGameActive) return;
+            createBubble();
+            const nextSpawn = Math.random() * 600 + 400; 
+            setTimeout(spawnLoop, nextSpawn);
+        };
+        spawnLoop();
+
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+        }, 1000);
+    }
+
+    function endGame() {
+        isGameActive = false;
+        gameOverScreen.style.display = 'flex';
+        finalScoreEl.textContent = score;
+        document.querySelectorAll('.bubble').forEach(b => b.remove());
+    }
+
+    // Iniciar
+    startGame();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do the operation from left to right</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #7ED321; /* 🍏 Apple green - tu preferencia */
+            --fail-color: #e67e22;
+            --bg-color: #f4f4f9;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        /* Digit Selector */
+        .selector-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .selector-container label {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .selector-container select {
+            padding: 8px 15px;
+            font-size: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .selector-container select:hover {
+            background-color: #e8f4fc;
+        }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            width: 320px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .score-ok { color: var(--success-color); }
+        .score-fail { color: var(--fail-color); }
+
+        /* Target Number Display */
+        .target-display {
+            background: white;
+            border: 2px solid var(--primary-color);
+            padding: 15px 30px;
+            font-size: 2.5rem;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 100px;
+            text-align: center;
+        }
+
+        /* Matrix Grid */
+        .matrix-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s; /* ✅ Sin border-color para evitar flash azul */
+            font-weight: bold;
+        }
+
+        .cell:hover {
+            background-color: #ddd;
+            transform: scale(1.05);
+        }
+
+        .cell.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .cell.correct {
+            background-color: var(--success-color) !important;
+            color: white;
+            border-color: var(--success-color);
+            transition: none; /* ✅ Cambio instantáneo: sin flash azul */
+        }
+
+        .cell.wrong {
+            background-color: var(--fail-color) !important;
+            color: white;
+            border-color: var(--fail-color);
+        }
+
+        .col-operators .cell {
+            background-color: #e8f4fc;
+        }
+
+        /* Feedback Box */
+        .feedback-box {
+            height: 50px;
+            width: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .feedback-good {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .feedback-try {
+            background-color: var(--fail-color);
+            color: white;
+        }
+
+        /* Next Button */
+        button#next-btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button#next-btn:hover {
+            background-color: #2980b9;
+        }
+
+        button#next-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Do the operation from left to right</h1>
+
+    <!-- Digit Selector -->
+    <div class="selector-container">
+        <label for="digit-selector">Range:</label>
+        <select id="digit-selector" onchange="initGame()">
+            <option value="1">0 - 12</option>
+            <option value="2">0 - 100</option>
+        </select>
+    </div>
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+        <span class="score-ok">OK: <span id="ok-count">0</span></span>
+        <span class="score-fail">Fails: <span id="fail-count">0</span></span>
+    </div>
+
+    <!-- Target Number -->
+    <div class="target-display" id="target-number">?</div>
+
+    <!-- Matrix 4x3 -->
+    <div class="matrix-container" id="matrix">
+        <!-- Generated by JS -->
+    </div>
+
+    <!-- Feedback Text -->
+    <div class="feedback-box" id="feedback-text">Select numbers to start</div>
+
+    <!-- Next Button -->
+    <button id="next-btn" onclick="initGame()">Next</button>
+
+    <script>
+        // Game State
+        let okCount = 0;
+        let failCount = 0;
+        let targetValue = 0;
+        let selectedCol1 = null;
+        let selectedOp = null;
+        let selectedCol3 = null;
+        
+        // DOM Elements
+        const matrixEl = document.getElementById('matrix');
+        const targetEl = document.getElementById('target-number');
+        const feedbackEl = document.getElementById('feedback-text');
+        const okCountEl = document.getElementById('ok-count');
+        const failCountEl = document.getElementById('fail-count');
+        const nextBtn = document.getElementById('next-btn');
+        const digitSelector = document.getElementById('digit-selector');
+
+        // Initialize game on load
+        window.onload = initGame;
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getDigitRange() {
+            const digits = digitSelector.value;
+            if (digits === '1') {
+                // 🎯 Rango pequeño: 0 a 12
+                return { min1: 0, max1: 12, min2: 0, max2: 12 };
+            } else {
+                // 🎯 Rango grande: 0 a 100
+                return { min1: 0, max1: 100, min2: 0, max2: 100 };
+            }
+        }
+
+        function initGame() {
+            // Reset State
+            selectedCol1 = null;
+            selectedOp = null;
+            selectedCol3 = null;
+            
+            // Reset UI
+            feedbackEl.textContent = "Select a number from the left";
+            feedbackEl.className = "feedback-box";
+            nextBtn.disabled = true;
+            
+            generateLevel();
+        }
+
+        function generateLevel() {
+            matrixEl.innerHTML = '';
+            
+            const range = getDigitRange();
+            
+            // Generate Data based on selected digit range
+            const col1Data = Array.from({length: 4}, () => getRandomInt(range.min1, range.max1));
+            const col2Data = ['+', '-', '×', '/'];
+            const col3Data = Array.from({length: 4}, () => getRandomInt(range.min2, range.max2));
+
+            // Pick a random row as the solution to guarantee solvability
+            const solutionRow = getRandomInt(0, 3);
+            let n1 = col1Data[solutionRow];
+            const op = col2Data[solutionRow];
+            let n2 = col3Data[solutionRow];
+
+            targetValue = calculate(n1, op, n2);
+
+            // 🔐 Handle division edge cases (must be integer, no division by zero, result >= 0)
+            if (op === '/') {
+                let attempts = 0;
+                while (attempts < 100) {
+                    n1 = getRandomInt(range.min1, range.max1);
+                    n2 = getRandomInt(range.min2, range.max2);
+                    
+                    if (n2 !== 0 && n1 % n2 === 0) {
+                        const result = n1 / n2;
+                        if (Number.isInteger(result) && result >= 0) {
+                            col1Data[solutionRow] = n1;
+                            col3Data[solutionRow] = n2;
+                            targetValue = result;
+                            break;
+                        }
+                    }
+                    attempts++;
+                }
+                // Fallback: if no valid division found, switch to addition
+                if (!Number.isInteger(targetValue) || targetValue < 0 || isNaN(targetValue)) {
+                    col2Data[solutionRow] = '+';
+                    n1 = col1Data[solutionRow];
+                    n2 = col3Data[solutionRow];
+                    targetValue = n1 + n2;
+                }
+            }
+
+            // 🔐 Handle subtraction to avoid negative results
+            if (op === '-') {
+                if (targetValue < 0) {
+                    // Swap to ensure positive or zero result
+                    col1Data[solutionRow] = Math.max(n1, n2);
+                    col3Data[solutionRow] = Math.min(n1, n2);
+                    targetValue = col1Data[solutionRow] - col3Data[solutionRow];
+                }
+            }
+            
+            targetEl.textContent = targetValue;
+
+            // Render Matrix
+            for (let r = 0; r < 4; r++) {
+                createCell(col1Data[r], 'col1', r);
+                createCell(col2Data[r], 'col2', r);
+                createCell(col3Data[r], 'col3', r);
+            }
+        }
+
+        function createCell(value, type, rowIndex) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.textContent = value;
+            cell.dataset.type = type;
+            cell.dataset.value = value;
+            cell.dataset.row = rowIndex;
+
+            if (type === 'col2') {
+                cell.classList.add('col-operators');
+            }
+
+            cell.addEventListener('click', () => handleCellClick(cell, type, value));
+            matrixEl.appendChild(cell);
+        }
+
+        function calculate(n1, op, n2) {
+            switch(op) {
+                case '+': return n1 + n2;
+                case '-': return n1 - n2;
+                case '×': return n1 * n2;
+                case '/': return n2 !== 0 ? n1 / n2 : NaN;
+                default: return 0;
+            }
+        }
+
+        // Helper to deselect specific column type
+        function deselectColumn(type) {
+            if (type === 'col1') {
+                if (selectedCol1) selectedCol1.element.classList.remove('selected');
+                selectedCol1 = null;
+            } else if (type === 'col2') {
+                if (selectedOp) selectedOp.element.classList.remove('selected');
+                selectedOp = null;
+            } else if (type === 'col3') {
+                if (selectedCol3) selectedCol3.element.classList.remove('selected');
+                selectedCol3 = null;
+            }
+        }
+
+        function handleCellClick(cell, type, value) {
+            // Prevent interaction if round is finished
+            if (nextBtn.disabled === false && feedbackEl.textContent !== "Select a number from the left") {
+                return;
+            }
+
+            if (type === 'col1') {
+                // ✅ Si se hace clic en otro número en col1, deseleccionar el anterior
+                if (selectedCol1 && selectedCol1.element !== cell) {
+                    selectedCol1.element.classList.remove('selected');
+                }
+                
+                selectedCol1 = { element: cell, value: parseFloat(value) };
+                cell.classList.add('selected');
+                
+                // Reset subsequent steps if col1 changes
+                if (selectedOp) {
+                    selectedOp.element.classList.remove('selected');
+                    selectedOp = null;
+                }
+                if (selectedCol3) {
+                    selectedCol3.element.classList.remove('selected');
+                    selectedCol3 = null;
+                }
+
+                feedbackEl.textContent = "Now select an operator";
+            } 
+            else if (type === 'col2') {
+                if (!selectedCol1) {
+                    feedbackEl.textContent = "Select a number from the left first";
+                    return;
+                }
+                
+                // ✅ Si se hace clic en otro operador, deseleccionar el anterior
+                if (selectedOp && selectedOp.element !== cell) {
+                    selectedOp.element.classList.remove('selected');
+                }
+
+                selectedOp = { element: cell, value: value };
+                cell.classList.add('selected');
+
+                // Reset col3 if operator changes
+                if (selectedCol3) {
+                    selectedCol3.element.classList.remove('selected');
+                    selectedCol3 = null;
+                }
+
+                feedbackEl.textContent = "Now select the last number";
+            } 
+            else if (type === 'col3') {
+                if (!selectedCol1 || !selectedOp) {
+                    feedbackEl.textContent = "Complete the sequence from left to right";
+                    return;
+                }
+                
+                // ✅ Si se hace clic en otro número en col3, deseleccionar el anterior
+                if (selectedCol3 && selectedCol3.element !== cell) {
+                    selectedCol3.element.classList.remove('selected');
+                }
+
+                selectedCol3 = { element: cell, value: parseFloat(value) };
+                cell.classList.add('selected');
+
+                checkResult();
+            }
+        }
+
+        function clearSelections() {
+            selectedCol1 = null;
+            selectedOp = null;
+            selectedCol3 = null;
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+        }
+
+        function checkResult() {
+            const result = calculate(selectedCol1.value, selectedOp.value, selectedCol3.value);
+            const cellsToMark = [selectedCol1.element, selectedOp.element, selectedCol3.element];
+
+            if (result === targetValue) {
+                cellsToMark.forEach(c => {
+                    c.classList.remove('selected'); // ✅ Quitar azul primero
+                    c.classList.add('correct');     // ✅ Aplicar verde manzana #7ED321 instantáneamente
+                });
+                feedbackEl.textContent = "Good Job";
+                feedbackEl.className = "feedback-box feedback-good";
+                okCount++;
+                okCountEl.textContent = okCount;
+                nextBtn.disabled = false;
+            } else {
+                cellsToMark.forEach(c => {
+                    c.classList.remove('selected');
+                    c.classList.add('wrong');
+                });
+                feedbackEl.textContent = "Try next";
+                feedbackEl.className = "feedback-box feedback-try";
+                failCount++;
+                failCountEl.textContent = failCount;
+                nextBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

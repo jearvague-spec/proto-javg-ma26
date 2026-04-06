@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprende Figuras Geométricas</title>
+    <style>
+        /* --- ESTILOS GENERALES (CSS3) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #f0f8ff;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --accent-color: #FFE66D;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#4ECDC4 1px, transparent 1px);
+            background-size: 20px 20px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--primary-color);
+            font-size: 3rem;
+            text-shadow: 2px 2px 0px #333;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* --- CONTENEDOR DE FIGURAS --- */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            width: 90%;
+            max-width: 1200px;
+            padding-bottom: 50px;
+        }
+
+        /* --- TARJETA DE FIGURA --- */
+        .shape-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 5px solid #ddd;
+        }
+
+        .shape-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .shape-card:active {
+            transform: scale(0.95);
+        }
+
+        /* Área de dibujo de la figura */
+        .canvas-area {
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        /* Información */
+        .info h2 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--text-color);
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .info p {
+            color: #666;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .sides-badge {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Animación al hacer clic (JS añade esta clase) */
+        .spin-animation {
+            animation: spin 1s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        /* Botón de sonido visual */
+        .sound-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            opacity: 0.3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Mundo de Formas 🌟</h1>
+        <p class="subtitle">¡Toca una figura para verla girar!</p>
+    </header>
+
+    <main class="container" id="shapesContainer">
+        <!-- Las figuras se generarán aquí con JavaScript -->
+    </main>
+
+    <script>
+        // --- JAVASCRIPT ---
+
+        // Datos de las figuras
+        const shapesData = [
+            { name: "Triángulo", sides: 3, color: "#FF6B6B", type: "polygon" },
+            { name: "Cuadrado", sides: 4, color: "#4ECDC4", type: "square" },
+            { name: "Rectángulo", sides: 4, color: "#FFE66D", type: "rectangle" },
+            { name: "Rombo", sides: 4, color: "#FF9F43", type: "rhombus" },
+            { name: "Pentágono", sides: 5, color: "#54A0FF", type: "polygon" },
+            { name: "Hexágono", sides: 6, color: "#5F27CD", type: "polygon" },
+            { name: "Octógono", sides: 8, color: "#00D2D3", type: "polygon" },
+            { name: "Círculo", sides: "Curvo", color: "#FF9FF3", type: "circle" },
+            { name: "Óvalo", sides: "Curvo", color: "#FECA57", type: "oval" },
+            { name: "Trapecio", sides: 4, color: "#1DD1A1", type: "trapezoid" }
+        ];
+
+        const container = document.getElementById('shapesContainer');
+
+        // Función para crear el SVG de cada figura
+        function getShapeSVG(shape) {
+            let svgContent = '';
+            const size = 100;
+            const center = size / 2;
+            
+            switch(shape.type) {
+                case 'polygon':
+                    // Generador simple de polígonos regulares
+                    const points = [];
+                    for (let i = 0; i < shape.sides; i++) {
+                        const angle = (i * 2 * Math.PI / shape.sides) - (Math.PI / 2);
+                        const x = center + (size/2 - 5) * Math.cos(angle);
+                        const y = center + (size/2 - 5) * Math.sin(angle);
+                        points.push(`${x},${y}`);
+                    }
+                    svgContent = `<polygon points="${points.join(' ')}" fill="${shape.color}" stroke="#333" stroke-width="3" />`;
+                    break;
+                
+                case 'square':
+                    svgContent = `<rect x="20" y="20" width="60" height="60" fill="${shape.color}" stroke="#333" stroke-width="3" />`;
+                    break;
+
+                case 'rectangle':
+                    svgContent = `<rect x="10" y="30" width="80" height="40" fill="${shape.color}" stroke="#333" stroke-width="3" />`;
+                    break;
+
+                case 'rhombus':
+                    svgContent = `<polygon points="50,15 85,50 50,85 15,50" fill="${shape.color}" stroke="#333" stroke-width="3" />`;
+                    break;
+
+                case 'circle':
+                    svgContent = `<circle cx="50" cy="50" r="40" fill="${shape.color}" stroke="#333" stroke-width="3" />`;
+                    break;
+
+                case 'oval':
+                    svgContent = `<ellipse cx="50" cy="50" rx="40" ry="25" fill="${shape.color}" stroke="#333" stroke-width="3" />`;
+                    break;
+
+                case 'trapezoid':
+                    svgContent = `<polygon points="20,80 80,80 70,20 30,20" fill="${shape.color}" stroke="#333" stroke-width="3" />`;
+                    break;
+            }
+
+            return `
+                <svg width="120" height="120" viewBox="0 0 100 100">
+                    ${svgContent}
+                </svg>
+            `;
+        }
+
+        // Renderizar las tarjetas
+        shapesData.forEach((shape, index) => {
+            const card = document.createElement('div');
+            card.classList.add('shape-card');
+            
+            // Texto de lados
+            let sidesText = "";
+            if (typeof shape.sides === 'number') {
+                sidesText = `${shape.sides} Lados`;
+            } else {
+                sidesText = "Sin lados rectos";
+            }
+
+            card.innerHTML = `
+                <span class="sound-icon">🔊</span>
+                <div class="canvas-area" id="shape-${index}">
+                    ${getShapeSVG(shape)}
+                </div>
+                <div class="info">
+                    <h2>${shape.name}</h2>
+                    <div class="sides-badge">${sidesText}</div>
+                </div>
+            `;
+
+            // Evento Click para animación
+            card.addEventListener('click', () => {
+                const shapeElement = document.getElementById(`shape-${index}`);
+                
+                // Quitar clase si ya existe para reiniciar animación
+                shapeElement.classList.remove('spin-animation');
+                
+                // Forzar reflow (truco para reiniciar animación CSS)
+                void shapeElement.offsetWidth; 
+                
+                // Añadir clase
+                shapeElement.classList.add('spin-animation');
+                
+                // Efecto de sonido simulado (opcional, visualmente cambia el borde)
+                card.style.borderColor = shape.color;
+                setTimeout(() => {
+                    card.style.borderColor = '#ddd';
+                }, 500);
+            });
+
+            container.appendChild(card);
+        });
+
+    </script>
+</body>
+</html>

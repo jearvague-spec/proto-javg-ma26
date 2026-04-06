@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Bee: Full Shapes List</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --ia-blue: #00bcd4; --ia-bg: #f0faff; --text: #0277bd; --bee-yellow: #ffeb3b; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { background: var(--ia-bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; min-height: 100vh; overflow: hidden; touch-action: none; }
+        #app-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; padding: 15px; height: 100vh; }
+
+        .bee-container { position: relative; width: 70px; height: 50px; margin-bottom: 10px; animation: bee-float 4s ease-in-out infinite; }
+        .bee-body { position: absolute; top: 15px; left: 15px; width: 40px; height: 28px; background: linear-gradient(to right, var(--bee-yellow) 20%, #222 20%, #222 40%, var(--bee-yellow) 40%, var(--bee-yellow) 60%, #222 60%, #222 80%, var(--bee-yellow) 80%); border-radius: 15px; border: 2px solid #222; z-index: 2; }
+        .bee-head { position: absolute; top: 10px; left: 2px; width: 22px; height: 22px; background: var(--bee-yellow); border-radius: 50%; border: 2px solid #222; z-index: 3; }
+        .bee-eye { position: absolute; top: 5px; width: 3px; height: 3px; background: #222; border-radius: 50%; }
+        .bee-eye.l { left: 5px; } .bee-eye.r { left: 12px; }
+        .bee-smile { position: absolute; top: 12px; left: 6px; width: 10px; height: 5px; border-bottom: 2px solid #222; border-radius: 0 0 8px 8px; }
+        .bee-stinger { position: absolute; top: 10px; right: -8px; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 10px solid #222; }
+        .bee-wing { position: absolute; top: -5px; width: 20px; height: 20px; background: rgba(255,255,255,0.8); border: 1px solid #ccc; border-radius: 50%; animation: wing-flap 0.15s linear infinite; z-index: 1; }
+        .bee-wing.l { left: 20px; } .bee-wing.r { left: 30px; }
+
+        @keyframes bee-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes wing-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.4); } }
+
+        #timer-box { font-weight: bold; background: white; padding: 5px 15px; border-radius: 20px; border: 2px solid var(--ia-blue); margin-bottom: 8px; }
+        #instruction-box { background: white; padding: 12px; border-radius: 15px; text-align: center; width: 100%; border: 2px solid var(--ia-blue); margin-bottom: 10px; font-weight: bold; font-size: 0.85rem; min-height: 60px; }
+        #canvas-wrapper { width: 100%; height: 220px; background: white; border-radius: 20px; border: 3px solid var(--ia-blue); margin-bottom: 10px; overflow: hidden; position: relative; }
+        .ui-panel { width: 100%; display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #00bcd4, #0097a7); border: none; color: white; border-radius: 12px; cursor: pointer; font-size: 1rem; font-weight: bold; box-shadow: 0 4px 0 #007c91; }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div class="bee-container">
+            <div class="bee-wing l"></div><div class="bee-wing r"></div>
+            <div class="bee-body"><div class="bee-stinger"></div></div>
+            <div class="bee-head"><div class="bee-eye l"></div><div class="bee-eye r"></div><div class="bee-smile"></div></div>
+        </div>
+        <div id="timer-box">TIME: <span id="timer-sec">30</span> | SCORE: <span id="score">0</span></div>
+        <div id="instruction-box">Press START to begin!</div>
+        <div id="canvas-wrapper"></div>
+        <div class="ui-panel" id="options-panel">
+            <button class="btn" style="background:#f57c00; box-shadow:0 4px 0 #e64a19;" onclick="startGame()">START! ✨</button>
+        </div>
+    </div>
+
+<script>
+    let scene, camera, renderer, currentShapeGroup, clock = new THREE.Clock();
+    let score = 0, levelIndex = 0, timeLeft = 30, timerInterval;
+
+    const shapesList = [
+        // --- 2D SHAPES ---
+        { id: "Circle", name: "Circle", desc: "Look! This flat figure is perfectly round with no corners.", opts: ["Circle", "Oval", "Square"] },
+        { id: "Square", name: "Square", desc: "This flat shape has 4 equal sides and 4 corners.", opts: ["Square", "Rectangle", "Rhombus"] },
+        { id: "Trapezoid", name: "Trapezoid", desc: "Notice this quadrilateral? Only one pair of sides are parallel.", opts: ["Trapezoid", "Rectangle", "Pentagon"] },
+        { id: "Pentagon", name: "Pentagon", desc: "This 2D shape has 5 equal sides and 5 vertices.", opts: ["Hexagon", "Pentagon", "Square"] },
+        { id: "Hexagon", name: "Hexagon", desc: "Check this out! It has 6 sides, just like my honeycomb.", opts: ["Octagon", "Hexagon", "Pentagon"] },
+        
+        // --- 3D SHAPES ---
+        { id: "Sphere", name: "Sphere", desc: "This 3D figure is round like a ball and has no flat faces.", opts: ["Sphere", "Circle", "Torus"] },
+        { id: "Cube", name: "Cube", desc: "Look at this solid! It is made of 6 identical square faces.", opts: ["Cube", "Box", "Cylinder"] },
+        { id: "Cone", name: "Cone", desc: "This figure has a circular base and a sharp point at the top.", opts: ["Cone", "Cylinder", "Pyramid"] },
+        { id: "Pyramid", name: "Pyramid", desc: "It has a square base and 4 triangular sides meeting at the top.", opts: ["Pyramid", "Cone", "Prism"] },
+        { id: "Octahedron", name: "Octahedron", desc: "This solid has 8 identical triangular faces. Very sharp!", opts: ["Octahedron", "Cube", "Dodecahedron"] },
+        { id: "Cylinder", name: "Cylinder", desc: "It has two flat circular bases and one curved surface.", opts: ["Cylinder", "Cone", "Torus"] },
+        { id: "Dodecahedron", name: "Dodecahedron", desc: "This amazing solid has 12 faces, all shaped like pentagons.", opts: ["Dodecahedron", "Icosahedron", "Sphere"] }
+    ];
+
+    function speak(text) {
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(text);
+        m.lang = 'en-US';
+        window.speechSynthesis.speak(m);
+        document.getElementById('instruction-box').innerText = text;
+    }
+
+    function resetTimer() {
+        if(timerInterval) clearInterval(timerInterval);
+        timeLeft = 30;
+        document.getElementById('timer-sec').innerText = timeLeft;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer-sec').innerText = timeLeft;
+            if(timeLeft <= 0) { levelIndex = (levelIndex + 1) % shapesList.length; loadLevel(); }
+        }, 1000);
+    }
+
+    function init3D() {
+        const container = document.getElementById('canvas-wrapper');
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 0, 5);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.innerHTML = ''; container.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 2.5));
+        animate();
+    }
+
+    function loadLevel() {
+        if(currentShapeGroup) scene.remove(currentShapeGroup);
+        const data = shapesList[levelIndex];
+        speak(data.desc);
+        resetTimer();
+
+        let geo;
+        // 2D
+        if(data.id === "Circle") geo = new THREE.CircleGeometry(0.7, 64);
+        else if(data.id === "Square") geo = new THREE.PlaneGeometry(1.1, 1.1);
+        else if(data.id === "Trapezoid") {
+            const s = new THREE.Shape();
+            s.moveTo(-0.5, -0.3); s.lineTo(0.5, -0.3); s.lineTo(0.3, 0.3); s.lineTo(-0.3, 0.3);
+            geo = new THREE.ShapeGeometry(s);
+        }
+        else if(data.id === "Pentagon") geo = new THREE.CircleGeometry(0.7, 5);
+        else if(data.id === "Hexagon") geo = new THREE.CircleGeometry(0.7, 6);
+        // 3D
+        else if(data.id === "Sphere") geo = new THREE.SphereGeometry(0.7, 32, 32);
+        else if(data.id === "Cube") geo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+        else if(data.id === "Cone") geo = new THREE.ConeGeometry(0.7, 1.2, 32);
+        else if(data.id === "Pyramid") geo = new THREE.ConeGeometry(0.9, 1.2, 4);
+        else if(data.id === "Octahedron") geo = new THREE.OctahedronGeometry(0.7);
+        else if(data.id === "Cylinder") geo = new THREE.CylinderGeometry(0.6, 0.6, 1.2, 32);
+        else if(data.id === "Dodecahedron") geo = new THREE.DodecahedronGeometry(0.7);
+
+        currentShapeGroup = new THREE.Group();
+        const mat = new THREE.MeshPhysicalMaterial({ color: 0x00bcd4, side: THREE.DoubleSide });
+        currentShapeGroup.add(new THREE.Mesh(geo, mat));
+        currentShapeGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color: 0x0277bd})));
+        scene.add(currentShapeGroup);
+
+        const panel = document.getElementById('options-panel');
+        panel.innerHTML = '';
+        data.opts.forEach(o => {
+            const b = document.createElement('button'); b.className = 'btn'; b.innerText = o;
+            b.onclick = () => {
+                if(o === data.name) {
+                    score += 10; document.getElementById('score').innerText = score;
+                    confetti({ particleCount: 50, origin: { y: 0.8 } });
+                    levelIndex = (levelIndex + 1) % shapesList.length;
+                    setTimeout(loadLevel, 1000);
+                }
+            };
+            panel.appendChild(b);
+        });
+    }
+
+    function startGame() { init3D(); loadLevel(); }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime() * 0.6; // Slow multiplier
+        if(currentShapeGroup) {
+            const cycle = t % 16; 
+            if (cycle < 4) { // Horizontal
+                currentShapeGroup.rotation.y = t * 1.5;
+                currentShapeGroup.rotation.x *= 0.9;
+            } else if (cycle < 8) { // Vertical
+                currentShapeGroup.rotation.x = t * 1.5;
+                currentShapeGroup.rotation.y *= 0.9;
+            } else if (cycle < 12) { // Diagonal Right
+                currentShapeGroup.rotation.y = t * 1.0;
+                currentShapeGroup.rotation.x = t * 1.0;
+            } else { // Diagonal Left
+                currentShapeGroup.rotation.y = -t * 1.0;
+                currentShapeGroup.rotation.x = t * 1.0;
+            }
+        }
+        renderer.render(scene, camera);
+    }
+</script>
+</body>
+</html>

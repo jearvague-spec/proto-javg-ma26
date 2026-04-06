@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Números Primos y Compuestos - 20 Rondas</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .round-counter {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            white-space: nowrap;
+        }
+
+        .progress-bar {
+            margin-top: 15px;
+            width: 80%;
+            max-width: 600px;
+            height: 12px;
+            background-color: rgba(255,255,255,0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .audio-controls {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .audio-btn {
+            background: linear-gradient(135deg, #FF9800, #FFC107);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            color: white;
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+
+        .audio-btn.muted {
+            background: linear-gradient(135deg, #9E9E9E, #757575);
+        }
+
+        .volume-slider {
+            width: 100px;
+            cursor: pointer;
+        }
+
+        .game-container {
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .instruction-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 10;
+            width: 90%;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        .instruction-text {
+            font-size: 1.5rem;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .clouds-area {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            flex-grow: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid transparent;
+            transform: translate(-50%, -50%);
+        }
+
+        .cloud:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1), 8px 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* SELECCIONADO: Borde Azul Marino */
+        .cloud.selected {
+            border-color: #001f3f;
+        }
+
+        /* CORRECTO: Verde Manzana sólido */
+        .cloud.correct {
+            background-color: #7ED321;
+            border-color: #7ED321;
+            animation: pop 0.4s;
+        }
+
+        .cloud.correct .cloud-number {
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* INCORRECTO: Blanco con Borde Naranja */
+        .cloud.incorrect {
+            background-color: white;
+            border-color: #FF8C00;
+            animation: shake 0.5s;
+        }
+
+        /* OLVIDADO: Vibra con Azul Marino (pero sigue seleccionable) */
+        .cloud.missed {
+            animation: shakeBlue 1s;
+            border-color: #001f3f;
+        }
+
+        .cloud-number {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            pointer-events: none;
+        }
+
+        @keyframes pop {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.25); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            20% { transform: translate(-50%, -50%) translateX(-10px); }
+            40% { transform: translate(-50%, -50%) translateX(10px); }
+            60% { transform: translate(-50%, -50%) translateX(-10px); }
+            80% { transform: translate(-50%, -50%) translateX(10px); }
+        }
+
+        @keyframes shakeBlue {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); border-color: #001f3f; }
+            20% { transform: translate(-50%, -50%) translateX(-10px); border-color: #001f3f; }
+            40% { transform: translate(-50%, -50%) translateX(10px); border-color: #001f3f; }
+            60% { transform: translate(-50%, -50%) translateX(-10px); border-color: #001f3f; }
+            80% { transform: translate(-50%, -50%) translateX(10px); border-color: #001f3f; }
+        }
+
+        .ready-btn {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #7ED321, #5BA819);
+            color: white;
+            border: none;
+            padding: 12px 50px;
+            font-size: 1.3rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .ready-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .ready-btn:active {
+            transform: scale(0.98);
+        }
+
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background-color: rgba(255, 255, 255, 0.98);
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 200;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .win-message.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .win-message h2 {
+            color: #7ED321;
+            font-size: 2.5rem;
+            margin-top: 0;
+        }
+
+        .final-score {
+            font-size: 1.5rem;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .next-round-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="round-counter">
+        Ronda: <span id="current-round">1</span>/20
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <div class="audio-controls">
+        <button class="audio-btn" id="audio-toggle" title="Activar/Desactivar música" onclick="toggleAudio()">
+            🔇
+        </button>
+        <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.1" value="0.5" 
+               onchange="setVolume(this.value)" title="Volumen">
+        <span style="font-size: 0.9rem; color: #555;">🎵 Música</span>
+    </div>
+
+    <!-- Música Infantil Alegre (Fuente: Pixabay - Libre de derechos) -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://cdn.pixabay.com/audio/2022/03/24/audio_c8c8a73467.mp3" type="audio/mpeg">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
+    <div class="game-container" id="game-container">
+        <div class="instruction-box">
+            <div class="instruction-text" id="instruction-text">
+                Cargando...
+            </div>
+        </div>
+
+        <div class="clouds-area" id="clouds-area"></div>
+        
+        <button class="ready-btn" id="ready-btn" onclick="checkReady()">✓ Ready</button>
+    </div>
+
+    <div class="win-message" id="win-message">
+        <h2 id="win-title">¡Ronda Completada!</h2>
+        <p class="final-score" id="win-message-text">Preparando siguiente ronda...</p>
+        <button class="btn next-round-btn" id="next-round-btn" onclick="nextRound()">Siguiente Ronda →</button>
+        <button class="btn" id="restart-game-btn" onclick="initGame()" style="display:none;">🔄 Jugar de Nuevo</button>
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bg-music');
+        const audioToggle = document.getElementById('audio-toggle');
+        const volumeSlider = document.getElementById('volume-slider');
+        let isMuted = true;
+
+        function toggleAudio() {
+            if (isMuted) {
+                bgMusic.play().then(() => {
+                    isMuted = false;
+                    audioToggle.textContent = '🔊';
+                    audioToggle.classList.remove('muted');
+                }).catch(error => {
+                    console.log('Autoplay bloqueado:', error);
+                });
+            } else {
+                bgMusic.pause();
+                isMuted = true;
+                audioToggle.textContent = '🔇';
+                audioToggle.classList.add('muted');
+            }
+        }
+
+        function setVolume(value) {
+            bgMusic.volume = value;
+            if (value == 0) {
+                audioToggle.textContent = '🔇';
+                audioToggle.classList.add('muted');
+                isMuted = true;
+            } else if (isMuted && value > 0) {
+                audioToggle.textContent = '🔊';
+                audioToggle.classList.remove('muted');
+                isMuted = false;
+                if (bgMusic.paused) bgMusic.play();
+            }
+        }
+
+        document.addEventListener('click', function initAudio() {
+            if (isMuted && !bgMusic.paused) return;
+            if (!bgMusic.paused) return;
+            
+            bgMusic.play().then(() => {
+                isMuted = false;
+                audioToggle.textContent = '🔊';
+                audioToggle.classList.remove('muted');
+            }).catch(() => {});
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
+
+        const cloudsArea = document.getElementById('clouds-area');
+        const instructionText = document.getElementById('instruction-text');
+        const winMessage = document.getElementById('win-message');
+        const currentRoundSpan = document.getElementById('current-round');
+        const progressFill = document.getElementById('progress-fill');
+        const winTitle = document.getElementById('win-title');
+        const winMessageText = document.getElementById('win-message-text');
+        const nextRoundBtn = document.getElementById('next-round-btn');
+        const restartGameBtn = document.getElementById('restart-game-btn');
+        const readyBtn = document.getElementById('ready-btn');
+
+        const TOTAL_ROUNDS = 20;
+        let currentRound = 1;
+        let currentRoundType = 'prime';
+        let foundCount = 0;
+        let totalTarget = 0;
+        let clouds = [];
+        let roundTypes = [];
+        let usedNumbersGlobal = new Set();
+
+        const dicePositions = [
+            { top: '8%', left: '20%' },
+            { top: '8%', left: '80%' },
+            { top: '50%', left: '50%' },
+            { top: '92%', left: '20%' },
+            { top: '92%', left: '80%' }
+        ];
+
+        function isPrime(num) {
+            if (num < 2) return false;
+            if (num === 2) return true;
+            if (num % 2 === 0) return false;
+            for (let i = 3; i <= Math.sqrt(num); i += 2) {
+                if (num % i === 0) return false;
+            }
+            return true;
+        }
+
+        function generateRoundTypes() {
+            const types = [];
+            for (let i = 0; i < 10; i++) {
+                types.push('prime');
+                types.push('composite');
+            }
+            for (let i = types.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [types[i], types[j]] = [types[j], types[i]];
+            }
+            return types;
+        }
+
+        function generateNumbers() {
+            const numbers = [];
+            const usedNumbersRound = new Set();
+            
+            if (usedNumbersGlobal.size > 95) {
+                usedNumbersGlobal.clear();
+            }
+            
+            while (numbers.length < 5) {
+                const num = 1 + Math.floor(Math.random() * 100);
+                
+                if (!usedNumbersRound.has(num) && !usedNumbersGlobal.has(num)) {
+                    usedNumbersRound.add(num);
+                    usedNumbersGlobal.add(num);
+                    numbers.push({
+                        number: num,
+                        isPrime: isPrime(num)
+                    });
+                }
+            }
+            
+            return numbers;
+        }
+
+        function initGame() {
+            currentRound = 1;
+            usedNumbersGlobal.clear();
+            roundTypes = generateRoundTypes();
+            updateRoundDisplay();
+            startRound();
+        }
+
+        function updateRoundDisplay() {
+            currentRoundSpan.textContent = currentRound;
+            const progress = ((currentRound - 1) / TOTAL_ROUNDS) * 100;
+            progressFill.style.width = `${progress}%`;
+        }
+
+        function startRound() {
+            cloudsArea.innerHTML = '';
+            winMessage.classList.remove('show');
+            foundCount = 0;
+            
+            currentRoundType = roundTypes[currentRound - 1];
+            const numbers = generateNumbers();
+            
+            totalTarget = numbers.filter(n => 
+                currentRoundType === 'prime' ? n.isPrime : !n.isPrime
+            ).length;
+            
+            if (totalTarget === 0) {
+                startRound();
+                return;
+            }
+            
+            updateInstruction();
+            createClouds(numbers);
+        }
+
+        function updateInstruction() {
+            const typeName = currentRoundType === 'prime' ? 'primos' : 'compuestos';
+            
+            instructionText.innerHTML = `
+                <div>Buscar números ${typeName}</div>
+                <div style="margin-top: 5px; font-size: 1.1rem; color: #666;">
+                    Encontrados: ${foundCount} de ${totalTarget}
+                </div>
+            `;
+        }
+
+        function createClouds(numbers) {
+            clouds = [];
+            
+            numbers.forEach((config, index) => {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                
+                const position = dicePositions[index];
+                cloud.style.top = position.top;
+                cloud.style.left = position.left;
+                
+                const size = 100;
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size * 0.65}px`;
+                cloud.style.zIndex = 10;
+
+                const numberSpan = document.createElement('span');
+                numberSpan.className = 'cloud-number';
+                numberSpan.textContent = config.number;
+                cloud.appendChild(numberSpan);
+
+                cloud.addEventListener('click', () => handleCloudClick(cloud, config));
+                cloudsArea.appendChild(cloud);
+                
+                clouds.push({ 
+                    element: cloud, 
+                    config: config, 
+                    clicked: false, 
+                    selected: false, 
+                    correct: false,
+                    incorrect: false
+                });
+            });
+        }
+
+        function handleCloudClick(cloudElement, config) {
+            const cloudData = clouds.find(c => c.element === cloudElement);
+            
+            // Si ya es correcto, no hacer nada
+            if (cloudData.correct) return;
+
+            // Si está en estado "incorrecto" (borde naranja), permitir deseleccionarlo
+            if (cloudData.incorrect) {
+                cloudData.incorrect = false;
+                cloudData.selected = false;
+                cloudData.element.classList.remove('incorrect');
+                return;
+            }
+
+            // Alternar selección normal (incluye números olvidados después de vibrar)
+            cloudData.selected = !cloudData.selected;
+            
+            if (cloudData.selected) {
+                cloudData.element.classList.add('selected');
+                cloudData.element.classList.remove('missed'); // Quitar clase missed si estaba
+            } else {
+                cloudData.element.classList.remove('selected');
+            }
+        }
+
+        function checkReady() {
+            let allCorrect = true;
+            let missedClouds = [];
+            
+            clouds.forEach(cloudData => {
+                const isTargetNumber = currentRoundType === 'prime' ? cloudData.config.isPrime : !cloudData.config.isPrime;
+                
+                // CASO 1: Seleccionado pero INCORRECTO
+                if (cloudData.selected && !isTargetNumber) {
+                    allCorrect = false;
+                    cloudData.incorrect = true;
+                    cloudData.selected = false;
+                    
+                    cloudData.element.classList.remove('selected');
+                    cloudData.element.classList.add('incorrect');
+                }
+                
+                // CASO 2: Es número objetivo pero NO fue seleccionado (Olvidado)
+                if (isTargetNumber && !cloudData.selected && !cloudData.correct && !cloudData.incorrect) {
+                    missedClouds.push(cloudData);
+                }
+            });
+            
+            // CASO 3: Números olvidados vibran con azul marino (PERO SIGUEN SELECCIONABLES)
+            if (missedClouds.length > 0) {
+                allCorrect = false;
+                missedClouds.forEach(cloudData => {
+                    cloudData.element.classList.add('missed');
+                    // Después de 1 segundo, quitar animación pero MANTENER SELECCIONABLE
+                    setTimeout(() => {
+                        cloudData.element.classList.remove('missed');
+                        // No resetear nada más, permitir que se pueda seleccionar
+                    }, 1000);
+                });
+            }
+            
+            // CASO 4: Todo correcto -> Verde manzana inmediatamente
+            if (allCorrect) {
+                clouds.forEach(cloudData => {
+                    if (cloudData.selected) {
+                        cloudData.correct = true;
+                        cloudData.clicked = true;
+                        cloudData.selected = false;
+                        
+                        cloudData.element.classList.remove('selected');
+                        cloudData.element.classList.add('correct');
+                        
+                        foundCount++;
+                    }
+                });
+                
+                updateInstruction();
+                
+                if (foundCount === totalTarget) {
+                    setTimeout(() => {
+                        completeRound();
+                    }, 600);
+                }
+            }
+        }
+
+        function completeRound() {
+            if (currentRound < TOTAL_ROUNDS) {
+                winTitle.textContent = `¡Ronda ${currentRound} Completada! 🎉`;
+                const typeName = currentRoundType === 'prime' ? 'PRIMOS' : 'COMPUESTOS';
+                winMessageText.innerHTML = `
+                    Encontraste todos los <strong>${typeName}</strong><br>
+                    Ronda ${currentRound} de ${TOTAL_ROUNDS}
+                `;
+                nextRoundBtn.style.display = 'inline-block';
+                restartGameBtn.style.display = 'none';
+                winMessage.classList.add('show');
+            } else {
+                finishGame();
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            updateRoundDisplay();
+            startRound();
+        }
+
+        function finishGame() {
+            winTitle.textContent = "🏆 ¡FELICIDADES! 🏆";
+            winMessageText.innerHTML = `
+                <strong>Completaste las 20 rondas</strong><br><br>
+                <span style="font-size: 3rem;">🍏🎯</span><br><br>
+                ¡Eres un experto en números primos y compuestos del 1 al 100!
+            `;
+            nextRoundBtn.style.display = 'none';
+            restartGameBtn.style.display = 'inline-block';
+            progressFill.style.width = '100%';
+            winMessage.classList.add('show');
+            
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#7ED321', '#f44336', '#2196F3', '#FFEB3B', '#FF9800', '#9C27B0'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '12px';
+                    confetti.style.height = '12px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-15px';
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.zIndex = '300';
+                    confetti.style.pointerEvents = 'none';
+                    document.body.appendChild(confetti);
+                    
+                    const duration = 2500 + Math.random() * 2000;
+                    confetti.animate([
+                        { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                        { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+                    ], {
+                        duration: duration,
+                        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                    }).onfinish = () => confetti.remove();
+                }, i * 40);
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

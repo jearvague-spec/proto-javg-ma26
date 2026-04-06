@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería 3D Lenta</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #050505;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin-top: 30px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 40px;
+            max-width: 1200px;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 220px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            margin-top: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover canvas {
+            transform: scale(1.1);
+        }
+
+        .label {
+            margin-top: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Figuras Geométricas 3D</h1>
+
+    <div class="gallery">
+        <!-- 1. Cubo -->
+        <div class="card" data-type="box" data-color="#ff0055">
+            <div class="label" style="color: #ff0055;">Cubo</div>
+        </div>
+        <!-- 2. Esfera -->
+        <div class="card" data-type="sphere" data-color="#00ffcc">
+            <div class="label" style="color: #00ffcc;">Esfera</div>
+        </div>
+        <!-- 3. Toroide -->
+        <div class="card" data-type="torus" data-color="#ccff00">
+            <div class="label" style="color: #ccff00;">Toroide</div>
+        </div>
+        <!-- 4. Cono -->
+        <div class="card" data-type="cone" data-color="#aa00ff">
+            <div class="label" style="color: #aa00ff;">Cono</div>
+        </div>
+        <!-- 5. Octaedro -->
+        <div class="card" data-type="octahedron" data-color="#0088ff">
+            <div class="label" style="color: #0088ff;">Octaedro</div>
+        </div>
+        <!-- 6. Prisma Rectangular -->
+        <div class="card" data-type="prism" data-color="#ffaa00">
+            <div class="label" style="color: #ffaa00;">Prisma Rect.</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+        const cards = document.querySelectorAll('.card');
+
+        cards.forEach(card => {
+            const type = card.getAttribute('data-type');
+            const colorHex = new THREE.Color(card.getAttribute('data-color'));
+            
+            createFigure(card, type, colorHex);
+        });
+
+        function createFigure(container, type, color) {
+            const width = 200;
+            const height = 200;
+
+            const scene = new THREE.Scene();
+            
+            const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+            // Acercamos un poco la cámara para compensar la lentitud visual
+            camera.position.z = 4.2;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.prepend(renderer.domElement);
+
+            // Luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+            
+            const backLight = new THREE.PointLight(0xffffff, 0.5);
+            backLight.position.set(-5, -5, -5);
+            scene.add(backLight);
+
+            let geometry;
+
+            switch(type) {
+                case 'box':
+                    geometry = new THREE.BoxGeometry(1.8, 1.8, 1.8);
+                    break;
+                case 'sphere':
+                    geometry = new THREE.SphereGeometry(1.2, 32, 32);
+                    break;
+                case 'torus':
+                    geometry = new THREE.TorusGeometry(1.1, 0.4, 16, 50);
+                    break;
+                case 'cone':
+                    geometry = new THREE.ConeGeometry(1.2, 2.2, 32);
+                    break;
+                case 'octahedron':
+                    geometry = new THREE.OctahedronGeometry(1.4); 
+                    break;
+                case 'prism':
+                    geometry = new THREE.BoxGeometry(1.2, 2.2, 1.2);
+                    break;
+            }
+
+            const material = new THREE.MeshStandardMaterial({ 
+                color: color,
+                roughness: 0.2,
+                metalness: 0.6,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            // Bordes blancos
+            const edges = new THREE.EdgesGeometry(geometry);
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
+            const wireframe = new THREE.LineSegments(edges, lineMaterial);
+            mesh.add(wireframe);
+
+            // Animación
+            let isHovered = false;
+            
+            // VELOCIDAD REDUCIDA (Antes era 0.015, ahora es 0.003)
+            const rotationSpeed = 0.003; 
+
+            container.addEventListener('mouseenter', () => {
+                isHovered = true;
+                mesh.scale.set(1.1, 1.1, 1.1);
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isHovered = false;
+                mesh.scale.set(1, 1, 1);
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                if (!isHovered) {
+                    if (type === 'sphere' || type === 'torus') {
+                        mesh.rotation.x += rotationSpeed * 0.5;
+                        mesh.rotation.y += rotationSpeed;
+                        mesh.rotation.z += rotationSpeed * 0.2;
+                    } else {
+                        mesh.rotation.x += rotationSpeed;
+                        mesh.rotation.y += rotationSpeed;
+                    }
+                } else {
+                    // Movimiento casi imperceptible al hacer hover
+                    mesh.rotation.y += 0.0005;
+                }
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+        }
+    </script>
+</body>
+</html>
