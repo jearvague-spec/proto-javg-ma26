@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería 3D Lenta</title>
+    <title>3D Geometric Gallery</title>
     <style>
         body {
             margin: 0;
@@ -75,32 +75,32 @@
 </head>
 <body>
 
-    <h1>Figuras Geométricas 3D</h1>
+    <h1>3D Geometric Shapes</h1>
 
     <div class="gallery">
-        <!-- 1. Cubo -->
+        <!-- 1. Cube -->
         <div class="card" data-type="box" data-color="#ff0055">
-            <div class="label" style="color: #ff0055;">Cubo</div>
+            <div class="label" style="color: #ff0055;">Cube</div>
         </div>
-        <!-- 2. Esfera -->
+        <!-- 2. Sphere -->
         <div class="card" data-type="sphere" data-color="#00ffcc">
-            <div class="label" style="color: #00ffcc;">Esfera</div>
+            <div class="label" style="color: #00ffcc;">Sphere</div>
         </div>
-        <!-- 3. Toroide -->
+        <!-- 3. Torus -->
         <div class="card" data-type="torus" data-color="#ccff00">
-            <div class="label" style="color: #ccff00;">Toroide</div>
+            <div class="label" style="color: #ccff00;">Torus</div>
         </div>
-        <!-- 4. Cono -->
+        <!-- 4. Cone -->
         <div class="card" data-type="cone" data-color="#aa00ff">
-            <div class="label" style="color: #aa00ff;">Cono</div>
+            <div class="label" style="color: #aa00ff;">Cone</div>
         </div>
-        <!-- 5. Octaedro -->
+        <!-- 5. Octahedron -->
         <div class="card" data-type="octahedron" data-color="#0088ff">
-            <div class="label" style="color: #0088ff;">Octaedro</div>
+            <div class="label" style="color: #0088ff;">Octahedron</div>
         </div>
-        <!-- 6. Prisma Rectangular -->
+        <!-- 6. Rectangular Prism -->
         <div class="card" data-type="prism" data-color="#ffaa00">
-            <div class="label" style="color: #ffaa00;">Prisma Rect.</div>
+            <div class="label" style="color: #ffaa00;">Rect. Prism</div>
         </div>
     </div>
 
@@ -123,7 +123,6 @@
             const scene = new THREE.Scene();
             
             const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-            // Acercamos un poco la cámara para compensar la lentitud visual
             camera.position.z = 4.2;
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -131,7 +130,7 @@
             renderer.setPixelRatio(window.devicePixelRatio);
             container.prepend(renderer.domElement);
 
-            // Luces
+            // Lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
 
@@ -177,16 +176,14 @@
             const mesh = new THREE.Mesh(geometry, material);
             scene.add(mesh);
 
-            // Bordes blancos
+            // Edge Wireframe
             const edges = new THREE.EdgesGeometry(geometry);
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
             const wireframe = new THREE.LineSegments(edges, lineMaterial);
             mesh.add(wireframe);
 
-            // Animación
+            // Animation logic
             let isHovered = false;
-            
-            // VELOCIDAD REDUCIDA (Antes era 0.015, ahora es 0.003)
             const rotationSpeed = 0.003; 
 
             container.addEventListener('mouseenter', () => {
@@ -212,7 +209,6 @@
                         mesh.rotation.y += rotationSpeed;
                     }
                 } else {
-                    // Movimiento casi imperceptible al hacer hover
                     mesh.rotation.y += 0.0005;
                 }
 
