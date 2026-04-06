@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BARBER SHOP - FirstName LastName</title>
+  <meta name="description" content="BARBER SHOP - FirstName LastName" />
+
+  <!-- Google Fonts: Montserrat para todo -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0FQzwBke6YoUaXWfl9a6BVA2Y4G/oHg==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer" />
+</head>
+<body>
+
+  <div style="
+    font-family: 'Montserrat', Arial, sans-serif;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    margin: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      #ffffff 0px,
+      #ffffff 40px,
+      #5d001f 40px,
+      #5d001f 80px,
+      #0A1931 80px,
+      #0A1931 120px
+    );
+    background-size: 120px 120px;
+  ">
+
+    <!-- Tarjeta principal -->
+    <div style="
+      background: #5d001f;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #D4AF37;
+      color: #ffffff;
+      z-index: 10;
+    ">
+
+      <!-- Encabezado -->
+      <div style="
+        background: #4a0019;
+        padding: 30px;
+        border-bottom: 1.5px solid #b88d00;
+      ">
+        <!-- Símbolo de barbería con efecto de profundidad -->
+        <div style="
+          font-size: 4rem;
+          margin-bottom: 10px;
+          text-shadow: 
+            3px 3px 5px rgba(0, 0, 0, 0.4),
+            6px 6px 10px rgba(0, 0, 0, 0.2);
+          display: inline-block;
+          transition: transform 0.3s ease;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+          💈
+        </div>
+
+        <!-- Nombre: FirstName -->
+        <h1 style="
+          font-family: 'Montserrat', sans-serif;
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 6px;
+          color: #ffffff;
+          letter-spacing: 1px;
+        ">FirstName</h1>
+        
+        <!-- Apellido: LastName's -->
+        <div style="
+          font-family: 'Montserrat', sans-serif;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: 1px;
+          margin-bottom: 4px;
+        ">LastName's</div>
+
+        <!-- Subtítulo: BARBER SHOP -->
+        <div style="
+          font-family: 'Montserrat', sans-serif;
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #ffffff;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+        ">BARBER SHOP</div>
+      </div>
+
+      <!-- Cuerpo: Cuadrícula 3x3 perfecta -->
+      <div style="padding: 30px; text-align: center;">
+
+        <!-- Grid: 3 columnas -->
+        <div style="
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 18px;
+          justify-items: center;
+          align-items: center;
+        ">
+
+          <!-- Fila 1: Contacto -->
+          <a href="tel:+12345678901" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #5d001f;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          " aria-label="Llamar">
+            <i class="fas fa-phone"></i>
+          </a>
+
+          <a href="https://www.google.com/maps/place/ ===== ... ???" target="_blank" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #5d001f;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          " aria-label="Ver en Google Maps">
+            <i class="fas fa-map-marker-alt"></i>
+          </a>
+
+          <a href="mailto:FirstName_LastName@gmail.com" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #5d001f;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          " aria-label="Email">
+            <i class="fas fa-envelope"></i>
+          </a>
+
+          <!-- Fila 2: Redes sociales -->
+          <a href="https://instagram.com/ ===== ... ???" target="_blank" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #E1306C;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          ">
+            <i class="fab fa-instagram"></i>
+          </a>
+
+          <a href="https://facebook.com/ ===== ... ???" target="_blank" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #1877F2;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          ">
+            <i class="fab fa-facebook"></i>
+          </a>
+
+          <a href="https://wa.me/ ===== ... ???" target="_blank" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #25D366;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          ">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+
+          <!-- Fila 3: Otras redes y Book -->
+          <a href="https://tiktok.com/@ ===== ... ???" target="_blank" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #000000;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          ">
+            <i class="fab fa-tiktok"></i>
+          </a>
+
+          <a href="https://t.me/ ===== ... ???" target="_blank" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #0088cc;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            text-decoration: none;
+          ">
+            <i class="fab fa-telegram"></i>
+          </a>
+
+          <a href="https://example.com/book-appointment" target="_blank" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #D4AF37;
+            border-radius: 50%;
+            color: #000000;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, background 0.3s;
+            text-decoration: none;
+          " onmouseover="this.style.background='#c59e2a';" onmouseout="this.style.background='#D4AF37';">
+            Book
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Respaldo si Font Awesome falla -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const icons = document.querySelectorAll(".fas, .fab");
+      const link = document.querySelector("link[href*='font-awesome']");
+      
+      if (!link?.sheet || link?.getAttribute("data-failed") === "true") {
+        icons.forEach(icon => {
+          icon.style.fontFamily = "sans-serif";
+          icon.style.fontWeight = "bold";
+          icon.style.fontStyle = "normal";
+          if (icon.classList.contains("fa-phone")) icon.textContent = "📞";
+          if (icon.classList.contains("fa-envelope")) icon.textContent = "✉️";
+          if (icon.classList.contains("fa-map-marker-alt")) icon.textContent = "📍";
+          if (icon.classList.contains("fa-instagram")) icon.textContent = "📸";
+          if (icon.classList.contains("fa-facebook")) icon.textContent = "f";
+          if (icon.classList.contains("fa-whatsapp")) icon.textContent = "💬";
+          if (icon.classList.contains("fa-tiktok")) icon.textContent = "T";
+          if (icon.classList.contains("fa-telegram")) icon.textContent = "✈️";
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
