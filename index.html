@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdTech Portfolio - Jesús Vásquez</title>
+    <title>EdTech & UX Portfolio - Jesús Vásquez</title>
     <style>
-        :root { --primary: #0056b3; --bg: #f0f2f5; --text: #1c1e21; --accent: #00bcd4; }
+        :root { 
+            --primary: #0056b3; 
+            --bg: #f0f2f5; 
+            --text: #1c1e21; 
+            --accent: #00bcd4; 
+            --dark-section: #2c3e50;
+        }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; max-width: 900px; margin: auto; padding: 40px; background-color: var(--bg); color: var(--text); }
         h1 { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 10px; text-align: center; margin-bottom: 5px; }
         .subtitle { text-align: center; font-size: 1.1em; color: #4b4f56; margin-bottom: 30px; }
         
         .section-title { grid-column: span 2; color: var(--primary); font-weight: bold; font-size: 1.3em; margin-top: 20px; border-left: 5px solid var(--accent); padding-left: 10px; text-align: left; }
+        .section-title.premium { color: var(--dark-section); border-left-color: var(--dark-section); }
         
         .menu-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; transition: all 0.2s ease; border: 1px solid #ddd; display: flex; flex-direction: column; justify-content: center; }
@@ -20,14 +27,18 @@
         
         .highlight { grid-column: span 2; background: linear-gradient(135deg, #ffffff, #eef7ff); border: 2px solid var(--accent); }
         
+        /* Estilo para las tarjetas profesionales */
+        .premium-card:hover { border-color: var(--dark-section); box-shadow: 0 6px 15px rgba(44, 62, 80, 0.2); }
+        .premium-card a { color: var(--dark-section); }
+
         .footer { margin-top: 50px; text-align: center; font-size: 0.95em; color: #555; border-top: 1px solid #ccc; padding-top: 20px; }
         @media (max-width: 600px) { .menu-container { grid-template-columns: 1fr; } .section-title, .highlight { grid-column: span 1; } }
     </style>
 </head>
 <body>
 
-    <h1>Educational Dev & Accessibility</h1>
-    <p class="subtitle">Interactive prototypes designed for cognitive support and mathematical learning.</p>
+    <h1>Software Development & Accessibility</h1>
+    <p class="subtitle">Interactive prototypes designed for educational support and professional networking.</p>
 
     <div class="menu-container">
         <!-- Math Foundations -->
@@ -76,13 +87,24 @@
             <a href="Math bee 01.html">Math Bee 01: 3D & Voice Synthesis</a>
             <p>Advanced multi-sensory learning using <strong>Three.js (WebGL)</strong> and <strong>Web Speech API</strong>.</p>
         </div>
+
+        <!-- Professional Showcases -->
+        <div class="section-title premium">Premium Business Cards & UX</div>
+        <div class="card premium-card">
+            <a href="Digital Business Card.html">Interactive Split Card</a>
+            <p>Modern UI showcase with sliding panels and social integration.</p>
+        </div>
+        <div class="card premium-card">
+            <a href="barber-business-card.html">Barber Shop Digital Card</a>
+            <p>High-impact layout with custom CSS patterns for businesses.</p>
+        </div>
+        <!-- Aquí puedes añadir más tarjetas profesionales siguiendo el mismo formato -->
     </div>
 
- <div class="footer">
+    <div class="footer">
         <strong>Developed by Jesús Armando Vásquez Guevara</strong><br>
         Personal projects focused on Didactic Learning and Accessibility Support.
     </div>
 
-    
 </body>
 </html>
